@@ -15,7 +15,7 @@ try {
 }
 
 if ($initDb) {
-    // Create schema
+    // Create schema on first run
     $db->exec("
         CREATE TABLE IF NOT EXISTS users (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -42,7 +42,7 @@ if ($initDb) {
         );
     ");
 
-    // Insert initial user (plain password for demo)
+    // Insert initial user (demo: plain password)
     $stmt = $db->prepare("INSERT INTO users (name, email, username, password) VALUES (?, ?, ?, ?)");
     $stmt->execute([
         'Jose Vicente Carratalá',
@@ -52,6 +52,13 @@ if ($initDb) {
     ]);
 }
 
+// 1) Attempt to add columns pos_x and pos_y (ignore if they exist).
+try {
+    $db->exec("ALTER TABLE classes ADD COLUMN pos_x REAL DEFAULT 250");
+    $db->exec("ALTER TABLE classes ADD COLUMN pos_y REAL DEFAULT 250");
+} catch (Exception $e) {
+    // If columns already exist, ignore
+}
 
 /****************************************************
  * 1) HELPER FUNCTIONS
@@ -85,7 +92,6 @@ function redirect($url) {
     header("Location: $url");
     exit;
 }
-
 
 /****************************************************
  * 2) HANDLE ACTIONS (LOGIN, LOGOUT, CREATE PROJECT, SELECT PROJECT)
@@ -146,7 +152,6 @@ if (isset($_GET['action']) && $_GET['action'] === 'select_project') {
     redirect('index.php');
 }
 
-
 /****************************************************
  * 3) HANDLE AJAX FOR SAVING / LOADING CLASSES
  ****************************************************/
@@ -181,18 +186,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['ajax']) && $_GET['ajax
         exit;
     }
 
-    // Save to DB: remove old, insert new
+    // Save to DB: remove old classes, insert new
     $db->beginTransaction();
     try {
+        // delete any old classes for this project
         $del = $db->prepare("DELETE FROM classes WHERE project_id = ?");
         $del->execute([$projectId]);
 
-        $ins = $db->prepare("INSERT INTO classes (project_id, class_name, properties, methods) VALUES (?, ?, ?, ?)");
+        // re-insert
+        $ins = $db->prepare("
+            INSERT INTO classes (project_id, class_name, properties, methods, pos_x, pos_y) 
+            VALUES (?, ?, ?, ?, ?, ?)
+        ");
         foreach ($classesData as $cls) {
-            $cn = trim($cls['className']);
+            $cn = trim($cls['className'] ?? 'Clase');
             $props = isset($cls['properties']) ? json_encode($cls['properties']) : '[]';
             $mets = isset($cls['methods']) ? json_encode($cls['methods']) : '[]';
-            $ins->execute([$projectId, $cn, $props, $mets]);
+            $posX = floatval($cls['x'] ?? 250);
+            $posY = floatval($cls['y'] ?? 250);
+
+            $ins->execute([$projectId, $cn, $props, $mets, $posX, $posY]);
         }
 
         $db->commit();
@@ -223,7 +236,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['ajax']) && $_GET['ajax'
         exit;
     }
 
-    $stmt = $db->prepare("SELECT class_name, properties, methods FROM classes WHERE project_id = ?");
+    $stmt = $db->prepare("SELECT class_name, properties, methods, pos_x, pos_y FROM classes WHERE project_id = ?");
     $stmt->execute([$projectId]);
     $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
@@ -232,13 +245,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['ajax']) && $_GET['ajax'
         $out[] = [
             'className' => $r['class_name'],
             'properties' => json_decode($r['properties'], true),
-            'methods' => json_decode($r['methods'], true),
+            'methods'    => json_decode($r['methods'], true),
+            'x'          => (float)$r['pos_x'],
+            'y'          => (float)$r['pos_y'],
         ];
     }
     echo json_encode($out);
     exit;
 }
-
 
 /****************************************************
  * 4) IF NOT LOGGED IN => SHOW LOGIN PAGE
@@ -251,9 +265,10 @@ if (!logged_in_user_id()):
     <meta charset="utf-8">
     <title>jocarsa | lavenderblush - Login</title>
     <style>
+    @import url('https://static.jocarsa.com/fuentes/ubuntu-font-family-0.83/ubuntu.css');
         body {
           margin:0; padding:0;
-          font-family: Arial, sans-serif;
+          font-family: Ubuntu, sans-serif;
           background: linear-gradient(120deg, #ffeef3, #ffdff0);
           display:flex; 
           align-items:center; 
@@ -302,17 +317,21 @@ if (!logged_in_user_id()):
         button:hover {
           background: #ffa6c9;
         }
+        .login-box img{
+        		width:100%;
+        }
     </style>
 </head>
 <body>
     <div class="login-box">
-        <h1>Login</h1>
+        <h1>jocarsa | lavenderblush</h1>
         <?php 
         $msg = get_message();
         if ($msg): ?>
           <div class="flash-msg"><?= htmlspecialchars($msg) ?></div>
         <?php endif; ?>
         <form method="post">
+         	<img src="lavenderblush.png" alt="Logo" />
             <input type="hidden" name="action" value="login">
             <label>Username</label>
             <input type="text" name="username" required>
@@ -330,7 +349,6 @@ endif; // end if not logged in
 /****************************************************
  * 5) LOGGED IN => SHOW MAIN UI
  ****************************************************/
-
 // Fetch user projects
 $stmt = $db->prepare("SELECT id, project_name FROM projects WHERE user_id = ?");
 $stmt->execute([logged_in_user_id()]);
@@ -338,6 +356,7 @@ $userProjects = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 // If session project not in DB or not set, we do not select one
 $currentProjectId = $_SESSION['project_id'] ?? 0;
+$currentProjectName = "";
 if ($currentProjectId) {
     // Validate it
     $stmt = $db->prepare("SELECT id, project_name FROM projects WHERE id = ? AND user_id = ?");
@@ -408,6 +427,7 @@ nav {
   border-right: 2px solid #ddd;
   padding: 20px;
   box-shadow: 4px 0 10px rgba(0,0,0,0.1);
+  overflow:auto;
 }
 nav h3 {
   margin-bottom:10px;
@@ -456,7 +476,7 @@ nav a.nav-button:hover {
 main {
   flex:1; 
   position:relative;
-  overflow:hidden; 
+  overflow:auto; 
   background: #fafafa;
   box-shadow: inset 0 0 15px rgba(0,0,0,0.1);
 }
@@ -501,7 +521,7 @@ main {
   color: #aaa;
 }
 
-/* Scroll handling for main if needed */
+/* scroll handling for main if needed */
 main {
   overflow:auto;
 }
@@ -510,10 +530,7 @@ main {
 <body>
 
 <header>
-  <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUA
-  AAAFCAYAAACNbyblAAAAHElEQVQI12P4
-  //8wCDAwMDAgECAwMD/8A9ZAKfOJQAB
-  CBAEzZ9qkkAAAAAElFTkSuQmCC" alt="Logo" />
+  <img src="lavenderblush.png" alt="Logo" />
   jocarsa | lavenderblush
 </header>
 
@@ -582,7 +599,7 @@ if ($msg): ?>
 <script>
 // 1) Draggable setup
 function makeDraggable(el) {
-  let offsetX, offsetY;
+  let offsetX = 0, offsetY = 0;
   let isDragging = false;
 
   el.addEventListener("mousedown", e => {
@@ -621,10 +638,16 @@ function getClasses() {
       mets.push(li.textContent.trim());
     });
 
+    // parseInt for left & top to store them as numbers
+    const xPos = parseInt(a.style.left, 10) || 250;
+    const yPos = parseInt(a.style.top, 10)  || 250;
+
     result.push({
       className: className,
       properties: props,
-      methods: mets
+      methods: mets,
+      x: xPos,
+      y: yPos
     });
   });
   return result;
@@ -665,21 +688,31 @@ function loadClasses() {
           const clone = tpl.content.cloneNode(true);
           const article = clone.querySelector("article");
 
+          // Class name
           article.querySelector(".nombre").textContent = cls.className;
+
+          // properties
           const ulProps = article.querySelector(".propiedades ul");
           ulProps.innerHTML = "";
-          cls.properties.forEach(p => {
+          (cls.properties || []).forEach(p => {
             const li = document.createElement("li");
             li.textContent = p;
             ulProps.appendChild(li);
           });
+
+          // methods
           const ulMets = article.querySelector(".metodos ul");
           ulMets.innerHTML = "";
-          cls.methods.forEach(m => {
+          (cls.methods || []).forEach(m => {
             const li = document.createElement("li");
             li.textContent = m;
             ulMets.appendChild(li);
           });
+
+          // Position
+          article.style.left = (cls.x || 250) + "px";
+          article.style.top  = (cls.y || 250) + "px";
+
           document.querySelector("main").appendChild(article);
           makeDraggable(article);
         });
@@ -715,7 +748,7 @@ document.addEventListener("DOMContentLoaded", () => {
     saveClasses();
   });
 
-  // On page load, try to load classes for the selected project (if any)
+  // On page load, load classes for the selected project (if any)
   loadClasses();
 });
 </script>
