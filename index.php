@@ -43,12 +43,12 @@ if ($initDb) {
     ");
 
     // Insert initial user (demo: plain password)
-    $stmt = $db->prepare("INSERT INTO users (name, email, username, password) VALUES (?, ?, ?, ?)");
+    $stmt = $db->prepare("iNSERT INTO users (name, email, username, password) VALUES (?, ?, ?, ?)");
     $stmt->execute([
-        'Jose Vicente Carratalá',
-        'info@josevicentecarratala.com',
-        'jocarsa',
-        'jocarsa'
+        'Fernando Valdivielso',
+        'iamvaldidev@gmail.com',
+        'valdidev',
+        'valdidev'
     ]);
 }
 
@@ -263,7 +263,7 @@ if (!logged_in_user_id()):
 <html>
 <head>
     <meta charset="utf-8">
-    <title>jocarsa | lavenderblush - Login</title>
+    <title>LavenderDiagram - Login</title>
     <style>
     @import url('https://static.jocarsa.com/fuentes/ubuntu-font-family-0.83/ubuntu.css');
         body {
@@ -324,7 +324,7 @@ if (!logged_in_user_id()):
 </head>
 <body>
     <div class="login-box">
-        <h1>jocarsa | lavenderblush</h1>
+        <h1>LavenderDiagram</h1>
         <?php 
         $msg = get_message();
         if ($msg): ?>
@@ -375,7 +375,7 @@ if ($currentProjectId) {
 <html>
 <head>
     <meta charset="utf-8">
-    <title>jocarsa | lavenderblush - Multiuser / Multiproject</title>
+    <title> Multiuser / Multiproject</title>
     <style>
 @import url('https://static.jocarsa.com/fuentes/ubuntu-font-family-0.83/ubuntu.css');
 

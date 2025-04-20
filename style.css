@@ -1,5 +1,5 @@
 /* style.css */
-@import url('https://static.jocarsa.com/fuentes/ubuntu-font-family-0.83/ubuntu.css');
+@import url("https://static.jocarsa.com/fuentes/ubuntu-font-family-0.83/ubuntu.css");
 
 /* Reset some defaults */
 * {
@@ -24,15 +24,15 @@ header {
   font-weight: bold;
   border-bottom: 1px solid #ddd;
   display: flex;
-	flex-direction: row;
-	flex-wrap: nowrap;
-	justify-content: center;
-	align-items: center;
-	align-content: stretch;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: center;
+  align-items: center;
+  align-content: stretch;
 }
-header img{
-	width:60px;
-	margin-right:20px;
+header img {
+  width: 60px;
+  margin-right: 20px;
 }
 /* Main layout container */
 .container {
@@ -75,7 +75,7 @@ main {
   flex: 1;
   padding: 20px;
   overflow-y: auto;
-  box-shadow:5px 5px 25px rgba(0,0,0,0.1) inset;
+  box-shadow: 5px 5px 25px rgba(0, 0, 0, 0.1) inset;
 }
 
 /* Optional: Styling for buttons inside the nav or main workspace */
@@ -96,26 +96,25 @@ button:hover {
 
 /* Example styling for draggable articles if needed */
 .draggable {
-        width: 200px;
-        height: 300px;
-        border: 1px solid white;
-        border-radius: 5px;
-        box-shadow: 0px 5px 25px rgba(0, 0, 0, 0.2);
-        overflow: hidden;
-        position: absolute;
-        background: white;
-      }
-      .draggable ul {
-        padding-left: 20px;
-      }
-      .draggable div {
-        padding: 5px;
-      }
-      .draggable .nombre {
-        background: green;
-        color: white;
-      }
-      .draggable p {
-        font-weight: bold;
-      }
-
+  width: 200px;
+  height: 300px;
+  border: 1px solid white;
+  border-radius: 5px;
+  box-shadow: 0px 5px 25px rgba(0, 0, 0, 0.2);
+  overflow: hidden;
+  position: absolute;
+  background: white;
+}
+.draggable ul {
+  padding-left: 20px;
+}
+.draggable div {
+  padding: 5px;
+}
+.draggable .nombre {
+  background: green;
+  color: white;
+}
+.draggable p {
+  font-weight: bold;
+}
