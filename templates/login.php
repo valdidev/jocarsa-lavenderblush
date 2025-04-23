@@ -1,76 +1,12 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <meta charset="utf-8">
     <title>LavenderDiagram - Login</title>
-    <style>
-        @import url('https://static.jocarsa.com/fuentes/ubuntu-font-family-0.83/ubuntu.css');
-
-        body {
-            margin: 0;
-            padding: 0;
-            font-family: Ubuntu, sans-serif;
-            background: linear-gradient(120deg, #ffeef3, #ffdff0);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-        }
-
-        .login-box {
-            background: white;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.2);
-            max-width: 300px;
-            width: 100%;
-        }
-
-        h1 {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-
-        .flash-msg {
-            color: red;
-            text-align: center;
-            margin-bottom: 10px;
-        }
-
-        label {
-            display: block;
-            margin: 10px 0 5px;
-        }
-
-        input[type=text],
-        input[type=password] {
-            width: 100%;
-            padding: 10px;
-            box-sizing: border-box;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-        }
-
-        button {
-            margin-top: 15px;
-            width: 100%;
-            padding: 10px;
-            background: #f8b2cd;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-weight: bold;
-        }
-
-        button:hover {
-            background: #ffa6c9;
-        }
-
-        .login-box img {
-            width: 100%;
-        }
-    </style>
+    <link rel="stylesheet" href="templates/css/login.css">
 </head>
+
 <body>
     <div class="login-box">
         <h1>LavenderDiagram</h1>
@@ -88,4 +24,5 @@
         </form>
     </div>
 </body>
+
 </html>
