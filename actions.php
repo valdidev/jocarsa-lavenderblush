@@ -2,18 +2,16 @@
 require_once 'db.php';
 require_once 'helpers.php';
 
-// Logout
 if (isset($_GET['action']) && $_GET['action'] === 'logout') {
     session_destroy();
     redirect('index.php');
 }
 
-// Login
 if (isset($_POST['action']) && $_POST['action'] === 'login') {
     $username = $_POST['username'] ?? '';
     $password = $_POST['password'] ?? '';
 
-    $stmt = $db->prepare("SELECT * FROM users WHERE username = ?");
+    $stmt = $db->prepare("sELECT * FROM users WHERE username = ?");
     $stmt->execute([$username]);
     $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -26,11 +24,10 @@ if (isset($_POST['action']) && $_POST['action'] === 'login') {
     }
 }
 
-// Create project
 if (isset($_GET['action']) && $_GET['action'] === 'create_project') {
     require_login();
     if (!empty($_POST['project_name'])) {
-        $stmt = $db->prepare("INSERT INTO projects (user_id, project_name) VALUES (?, ?)");
+        $stmt = $db->prepare("iNSERT INTO projects (user_id, project_name) VALUES (?, ?)");
         $stmt->execute([logged_in_user_id(), $_POST['project_name']]);
         $_SESSION['project_id'] = $db->lastInsertId();
         set_message("Project created: " . htmlspecialchars($_POST['project_name']));
@@ -38,11 +35,10 @@ if (isset($_GET['action']) && $_GET['action'] === 'create_project') {
     redirect('index.php');
 }
 
-// Select project
 if (isset($_GET['action']) && $_GET['action'] === 'select_project') {
     require_login();
     if (!empty($_POST['project_id'])) {
-        $stmt = $db->prepare("SELECT id FROM projects WHERE id = ? AND user_id = ?");
+        $stmt = $db->prepare("sELECT id FROM projects WHERE id = ? AND user_id = ?");
         $stmt->execute([$_POST['project_id'], logged_in_user_id()]);
         $proj = $stmt->fetch(PDO::FETCH_ASSOC);
         if ($proj) {

@@ -13,7 +13,7 @@ try {
 
 if ($initDb) {
     $db->exec("
-        CREATE TABLE IF NOT EXISTS users (
+        cREATE TABLE IF NOT EXISTS users (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             name TEXT NOT NULL,
             email TEXT NOT NULL,
@@ -21,14 +21,14 @@ if ($initDb) {
             password TEXT NOT NULL
         );
         
-        CREATE TABLE IF NOT EXISTS projects (
+        cREATE TABLE IF NOT EXISTS projects (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             user_id INTEGER NOT NULL,
             project_name TEXT NOT NULL,
             FOREIGN KEY(user_id) REFERENCES users(id)
         );
         
-        CREATE TABLE IF NOT EXISTS classes (
+        cREATE TABLE IF NOT EXISTS classes (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             project_id INTEGER NOT NULL,
             class_name TEXT NOT NULL,
@@ -38,7 +38,7 @@ if ($initDb) {
         );
     ");
 
-    $stmt = $db->prepare("INSERT INTO users (name, email, username, password) VALUES (?, ?, ?, ?)");
+    $stmt = $db->prepare("iNSERT INTO users (name, email, username, password) VALUES (?, ?, ?, ?)");
     $stmt->execute([
         'Fernando Valdivielso',
         'iamvaldidev@gmail.com',
@@ -48,8 +48,7 @@ if ($initDb) {
 }
 
 try {
-    $db->exec("ALTER TABLE classes ADD COLUMN pos_x REAL DEFAULT 250");
-    $db->exec("ALTER TABLE classes ADD COLUMN pos_y REAL DEFAULT 250");
+    $db->exec("aLTER TABLE classes ADD COLUMN pos_x REAL DEFAULT 250");
+    $db->exec("aLTER TABLE classes ADD COLUMN pos_y REAL DEFAULT 250");
 } catch (Exception $e) {
-    // If columns already exist, ignore
 }

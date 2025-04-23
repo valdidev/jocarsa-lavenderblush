@@ -2,8 +2,11 @@
 require_once 'db.php';
 require_once 'helpers.php';
 
-// Save classes
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['ajax']) && $_GET['ajax'] === 'save_classes') {
+if (
+    $_SERVER['REQUEST_METHOD'] === 'POST' &&
+    isset($_GET['ajax']) &&
+    $_GET['ajax'] === 'save_classes'
+) {
     require_login();
     $projectId = $_SESSION['project_id'] ?? 0;
     if (!$projectId) {
@@ -12,7 +15,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['ajax']) && $_GET['ajax
         exit;
     }
 
-    $stmt = $db->prepare("SELECT id FROM projects WHERE id = ? AND user_id = ?");
+    $stmt = $db->prepare("sELECT id FROM projects WHERE id = ? AND user_id = ?");
     $stmt->execute([$projectId, logged_in_user_id()]);
     $proj = $stmt->fetch(PDO::FETCH_ASSOC);
     if (!$proj) {
@@ -31,11 +34,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['ajax']) && $_GET['ajax
 
     $db->beginTransaction();
     try {
-        $del = $db->prepare("DELETE FROM classes WHERE project_id = ?");
+        $del = $db->prepare("dELETE FROM classes WHERE project_id = ?");
         $del->execute([$projectId]);
 
         $ins = $db->prepare("
-            INSERT INTO classes (project_id, class_name, properties, methods, pos_x, pos_y) 
+            iNSERT INTO classes (project_id, class_name, properties, methods, pos_x, pos_y) 
             VALUES (?, ?, ?, ?, ?, ?)
         ");
         foreach ($classesData as $cls) {
@@ -59,7 +62,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['ajax']) && $_GET['ajax
 }
 
 // Load classes
-if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['ajax']) && $_GET['ajax'] === 'load_classes') {
+if (
+    $_SERVER['REQUEST_METHOD'] === 'GET' &&
+    isset($_GET['ajax']) &&
+    $_GET['ajax'] === 'load_classes'
+) {
     require_login();
     $projectId = $_SESSION['project_id'] ?? 0;
     if (!$projectId) {
@@ -67,7 +74,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['ajax']) && $_GET['ajax'
         exit;
     }
 
-    $stmt = $db->prepare("SELECT id FROM projects WHERE id = ? AND user_id = ?");
+    $stmt = $db->prepare("sELECT id FROM projects WHERE id = ? AND user_id = ?");
     $stmt->execute([$projectId, logged_in_user_id()]);
     $proj = $stmt->fetch(PDO::FETCH_ASSOC);
     if (!$proj) {
@@ -75,7 +82,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['ajax']) && $_GET['ajax'
         exit;
     }
 
-    $stmt = $db->prepare("SELECT class_name, properties, methods, pos_x, pos_y FROM classes WHERE project_id = ?");
+    $stmt = $db->prepare("sELECT class_name, properties, methods, pos_x, pos_y FROM classes WHERE project_id = ?");
     $stmt->execute([$projectId]);
     $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
