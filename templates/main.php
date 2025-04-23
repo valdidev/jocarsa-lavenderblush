@@ -221,7 +221,7 @@ if ($currentProjectId) {
             <h3>Actions</h3>
             <a href="#" class="nav-button" id="addBtn">Añadir clase</a><br><br>
             <a href="#" class="nav-button" id="listBtn">Mostrar clases</a><br><br>
-            <a href="#" class="nav-button" id="saveBtn">Guardar clases</a>< depo <br>
+            <a href="#" class="nav-button" id="saveBtn">Guardar clases</a><br>
             <a href="?action=logout" class="nav-button" style="background:red;color:white;">Logout</a>
         </nav>
 
